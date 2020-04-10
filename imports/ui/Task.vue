@@ -10,33 +10,52 @@
       v-bind:checked="!!this.task.checked"
       @click="toggleChecked"
     />
+    <!-- Make a task private only if you 'own' the task -->
+    <template v-if="this.showPrivateButton">
+      <button className="toggle-private" @click="togglePrivate">
+        {{ this.task.private ? "Private" : "Public" }}
+      </button>
+    </template>
  
-    <span class="text">{{ this.task.text }}</span>
+     <span class="text">
+      <strong>{{ this.task.username }}</strong
+      >: {{ this.task.text }}
+    </span>
   </li>
 </template>
  
 <script>
 import { Tasks } from "../api/tasks.js";
+import classnames from "classnames";
  
 export default {
-  props: ["task"],
+  props: ["task", "showPrivateButton"],
   data() {
     return {};
   },
   computed: {
     taskClassName: function() {
-      return this.task.checked ? "checked" : "";
+      return classnames({
+        checked: this.task.checked,
+        private: this.task.private
+      });
     }
   },
   methods: {
     toggleChecked() {
       // Set the checked property to the opposite of its current value
-      Tasks.update(this.task._id, {
-        $set: { checked: !this.task.checked }
-      });
+      Meteor.call("tasks.setChecked", this.task._id, !this.task.checked);
+      // Tasks.update(this.task._id, {
+      //   $set: { checked: !this.task.checked }
+      // });
     },
     deleteThisTask() {
-      Tasks.remove(this.task._id);
+      Meteor.call("tasks.remove", this.task._id);
+      // Tasks.remove(this.task._id);
+    },
+    // Hide task if made private by owner
+    togglePrivate() {
+      Meteor.call("tasks.setPrivate", this.task._id, !this.task.private);
     }
   }
 };
