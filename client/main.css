@@ -43,6 +43,9 @@ h1 {
   display: inline-block;
   margin-right: 1em;
 }
+h4 {
+  display: inline-block;
+}
  
 form {
   margin-top: 10px;
